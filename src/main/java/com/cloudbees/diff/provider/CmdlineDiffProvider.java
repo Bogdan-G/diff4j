@@ -154,8 +154,8 @@ public class CmdlineDiffProvider extends DiffProvider implements java.io.Seriali
      * Executes (possibly broken) external program.
      */
     private Diff createDiff(File f1, File f2) throws IOException {
-        final StringBuffer firstText = new StringBuffer();
-        final StringBuffer secondText = new StringBuffer();
+        final StringBuilder firstText = new StringBuilder();
+        final StringBuilder secondText = new StringBuilder();
         diffCmd = diffCmd.replace("\"{0}\"", "{0}").replace("\"{1}\"", "{1}");  // compatibility // NOI18N
         String firstPath;
         String secondPath;
@@ -210,16 +210,16 @@ public class CmdlineDiffProvider extends DiffProvider implements java.io.Seriali
         t.start();
         try {
             t.join();
-            synchronized(ret) {
+            //synchronized(ret) {
                 if (ret[0] instanceof IOException) {
                     throw (IOException) ret[0];
                 }
                 return (Diff) ret[0];
-            }
+            //}
         } catch (InterruptedException e) {
-            synchronized(p[0]) {
+            //synchronized(p[0]) {
                 p[0].destroy();
-            }
+            //}
             throw new InterruptedIOException();
         }
 
@@ -230,7 +230,7 @@ public class CmdlineDiffProvider extends DiffProvider implements java.io.Seriali
     }
 
     public static void setTextOnLastDifference(List<Difference> differences,
-        StringBuffer firstText, StringBuffer secondText) {
+        StringBuilder firstText, StringBuilder secondText) {
         if (differences.size() > 0) {
             String t1 = firstText.toString();
             if (t1.length() == 0) t1 = null;
@@ -250,7 +250,7 @@ public class CmdlineDiffProvider extends DiffProvider implements java.io.Seriali
      */
     //private void outputData(String[] elements, List differences) {
     public static void outputLine(String elements, Pattern pattern, List<Difference> differences,
-                                   StringBuffer firstText, StringBuffer secondText) {
+                                   StringBuilder firstText, StringBuilder secondText) {
         //diffBuffer.append(elements[0]+"\n"); // NOI18N
         //D.deb("diff match: "+elements[0]); // NOI18N
         //System.out.println("diff outputData: "+elements[0]); // NOI18N
@@ -285,7 +285,7 @@ public class CmdlineDiffProvider extends DiffProvider implements java.io.Seriali
                     if (checkEmpty(nStr, elements)) return;
                     n3 = Integer.parseInt(nStr);
                     nStr = elements.substring(commaIndex+1, elements.length());
-                    if (nStr == null || nStr.length() == 0) n4 = n3;
+                    if (/*nStr == null || */nStr.length() == 0) n4 = n3;
                     else n4 = Integer.parseInt(nStr);
                 }
             } catch (NumberFormatException e) {
@@ -359,7 +359,7 @@ public class CmdlineDiffProvider extends DiffProvider implements java.io.Seriali
                     if (checkEmpty(nStr, elements)) return;
                     n3 = Integer.parseInt(nStr);
                     nStr = elements.substring(commaIndex+1, elements.length());
-                    if (nStr == null || nStr.length() == 0) n4 = n3;
+                    if (/*nStr == null || */nStr.length() == 0) n4 = n3;
                     else n4 = Integer.parseInt(nStr);
                 }
             } catch (NumberFormatException e) {

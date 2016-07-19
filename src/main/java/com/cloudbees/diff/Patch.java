@@ -69,7 +69,8 @@ class Patch extends Reader {
     private int currDiff = 0;
     private int line = 1;
     private String newLine = null; // String, that is used to separate lines
-    private StringBuffer buff = new StringBuffer();
+    private StringBuilder buff = new StringBuilder();
+    private static final Pattern prenormRegexp = Pattern.compile(CmdlineDiffProvider.DIFF_REGEXP);
     
     /** Creates a new instance of Patch */
     Patch(Diff diffs, Reader source) {
@@ -217,19 +218,22 @@ class Patch extends Reader {
         int pos = 0;
         int n;
         String readStr = "";
+        StringBuilder readStrSB = new StringBuilder(readStr);
         do {
             n = source.read(chars, 0, chars.length - pos);
             if (n > 0) {
                 pos += n;
-                readStr = readStr + new String(chars, 0, n);
+                readStrSB.append(new String(chars, 0, n));
             }
+            readStr = String.valueOf(readStrSB);
             if (readStr.endsWith("\r")) {
                 try {
                     char c = (char) source.read();
                     if (c != '\n') source.unread(c);
-                    else readStr += c;
+                    else readStrSB.append(c);
                 } catch (IOException ioex) {}
             }
+            readStr = String.valueOf(readStrSB);
             readStr = adjustTextNL(readStr);
             pos = readStr.length();
         } while (n > 0 && pos < chars.length);
@@ -356,15 +360,13 @@ class Patch extends Reader {
                 changeInterval[0] = pos;
                 changeInterval[2] = Difference.ADD;
                 StringBuilder changeText = new StringBuilder();
-                changeText.append(line.substring(LINE_PREP_ADD.length()));
-                changeText.append('\n');
+                changeText.append(line.substring(LINE_PREP_ADD.length())).append('\n');
                 do {
                     line = br.readLine();
                     if (line == null)
                         break;
                     if (line.startsWith(LINE_PREP_ADD)) {
-                        changeText.append(line.substring(LINE_PREP_ADD.length()));
-                        changeText.append('\n');
+                        changeText.append(line.substring(LINE_PREP_ADD.length())).append('\n');
                     } else {
                         break;
                     }
@@ -378,15 +380,13 @@ class Patch extends Reader {
                 changeInterval[0] = pos;
                 changeInterval[2] = Difference.DELETE;
                 StringBuilder changeText = new StringBuilder();
-                changeText.append(line.substring(LINE_PREP_REMOVE.length()));
-                changeText.append('\n');
+                changeText.append(line.substring(LINE_PREP_REMOVE.length())).append('\n');
                 do {
                     line = br.readLine();
                     if (line == null)
                         break;
                     if (line.startsWith(LINE_PREP_REMOVE)) {
-                        changeText.append(line.substring(LINE_PREP_REMOVE.length()));
-                        changeText.append('\n');
+                        changeText.append(line.substring(LINE_PREP_REMOVE.length())).append('\n');
                     } else {
                         break;
                     }
@@ -400,15 +400,13 @@ class Patch extends Reader {
                 changeInterval[0] = pos;
                 changeInterval[2] = Difference.CHANGE;
                 StringBuilder changeText = new StringBuilder();
-                changeText.append(line.substring(LINE_PREP_CHANGE.length()));
-                changeText.append('\n');
+                changeText.append(line.substring(LINE_PREP_CHANGE.length())).append('\n');
                 do {
                     line = br.readLine();
                     if (line == null)
                         break;
                     if (line.startsWith(LINE_PREP_CHANGE)) {
-                        changeText.append(line.substring(LINE_PREP_CHANGE.length()));
-                        changeText.append('\n');
+                        changeText.append(line.substring(LINE_PREP_CHANGE.length())).append('\n');
                     } else {
                         break;
                     }
@@ -578,14 +576,12 @@ class Patch extends Reader {
             if (line.startsWith(LINE_PREP_UNIF_ADD)) {
                 int begin = pos2;
                 StringBuilder changeText = new StringBuilder();
-                changeText.append(line.substring(LINE_PREP_UNIF_ADD.length()));
-                changeText.append('\n');
+                changeText.append(line.substring(LINE_PREP_UNIF_ADD.length())).append('\n');
                 do {
                     line = br.readLine();
                     pos2++;
                     if (line.startsWith(LINE_PREP_UNIF_ADD)) {
-                        changeText.append(line.substring(LINE_PREP_UNIF_ADD.length()));
-                        changeText.append('\n');
+                        changeText.append(line.substring(LINE_PREP_UNIF_ADD.length())).append('\n');
                     } else {
                         break;
                     }
@@ -607,14 +603,12 @@ class Patch extends Reader {
             } else if (line.startsWith(LINE_PREP_UNIF_REMOVE)) {
                 int begin = pos1;
                 StringBuilder changeText = new StringBuilder();
-                changeText.append(line.substring(LINE_PREP_UNIF_REMOVE.length()));
-                changeText.append('\n');
+                changeText.append(line.substring(LINE_PREP_UNIF_REMOVE.length())).append('\n');
                 do {
                     line = br.readLine();
                     pos1++;
                     if (line.startsWith(LINE_PREP_UNIF_REMOVE)) {
-                        changeText.append(line.substring(LINE_PREP_UNIF_REMOVE.length()));
-                        changeText.append('\n');
+                        changeText.append(line.substring(LINE_PREP_UNIF_REMOVE.length())).append('\n');
                     } else {
                         break;
                     }
@@ -645,12 +639,12 @@ class Patch extends Reader {
     private static Difference[] parseNormalDiff(Reader in) throws IOException {
         Pattern normRegexp;
         try {
-            normRegexp = Pattern.compile(CmdlineDiffProvider.DIFF_REGEXP);
+            normRegexp = prenormRegexp;
         } catch (PatternSyntaxException rsex) {
             normRegexp = null;
         }
-        StringBuffer firstText = new StringBuffer();
-        StringBuffer secondText = new StringBuffer();
+        StringBuilder firstText = new StringBuilder();
+        StringBuilder secondText = new StringBuilder();
         BufferedReader br = new BufferedReader(in);
         List<Difference> diffs = new ArrayList<Difference>();
         String line;
@@ -753,7 +747,7 @@ class Patch extends Reader {
             Pattern normRegexp;
             boolean contextBeginDetected = false;
             try {
-                normRegexp = Pattern.compile(CmdlineDiffProvider.DIFF_REGEXP);
+                normRegexp = prenormRegexp;
             } catch (PatternSyntaxException rsex) {
                 normRegexp = null;
             }

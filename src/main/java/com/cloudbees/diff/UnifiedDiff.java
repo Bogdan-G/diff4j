@@ -77,12 +77,7 @@ final class UnifiedDiff {
         modifiedReader = checkEndingNewline(diffInfo.createSecondReader(), false);
         
         StringBuilder buffer = new StringBuilder();
-        buffer.append("--- ");
-        buffer.append(diffInfo.getName1());
-        buffer.append(newline);
-        buffer.append("+++ ");
-        buffer.append(diffInfo.getName2());
-        buffer.append(newline);
+        buffer.append("--- ").append(diffInfo.getName1()).append(newline).append("+++ ").append(diffInfo.getName2()).append(newline);
         
         List<Difference> diffs = diffInfo.getDifferences();
         
@@ -213,23 +208,17 @@ final class UnifiedDiff {
     }
     
     private void dumpHunk(StringBuilder buffer, Hunk hunk) {
-        buffer.append("@@ -");
-        buffer.append(Integer.toString(hunk.baseStart));
+        buffer.append("@@ -").append(Integer.toString(hunk.baseStart));
         if (hunk.baseCount != 1) {
-            buffer.append(",");
-            buffer.append(Integer.toString(hunk.baseCount));
+            buffer.append(",").append(Integer.toString(hunk.baseCount));
         }
-        buffer.append(" +");
-        buffer.append(Integer.toString(hunk.modifiedStart));
+        buffer.append(" +").append(Integer.toString(hunk.modifiedStart));
         if (hunk.modifiedCount != 1) {
-            buffer.append(",");
-            buffer.append(Integer.toString(hunk.modifiedCount));
+            buffer.append(",").append(Integer.toString(hunk.modifiedCount));
         }
-        buffer.append(" @@");
-        buffer.append(newline);
+        buffer.append(" @@").append(newline);
         for (String line : hunk.lines) {
-            buffer.append(line);
-            buffer.append(newline);
+            buffer.append(line).append(newline);
         }
     }
 
